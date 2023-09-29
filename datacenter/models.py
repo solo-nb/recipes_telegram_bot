@@ -65,7 +65,7 @@ class Ingredients(models.Model):
 class Recipes_ingredients(models.Model):
     recipes = models.ForeignKey(Recipes, on_delete=models.CASCADE)
     ingredients = models.ForeignKey(Ingredients, on_delete=models.CASCADE)
-    quantity = models.IntegerField()
+    quantity = models.FloatField()
 
 
 class Grades(models.Model):
