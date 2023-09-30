@@ -44,6 +44,7 @@ class Types_of_recipes(models.Model):
 
 class Recipes(models.Model):
     name = models.CharField(max_length=150)
+    image = models.CharField(max_length=150, null=True)
     discription = models.CharField(max_length=1024)
     types_of_recipes = models.ForeignKey(
         Types_of_recipes, on_delete=models.SET_NULL, null=True)
