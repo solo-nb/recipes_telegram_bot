@@ -6,14 +6,17 @@ from datacenter.handlers import handlers
 
 bot_handlers = ConversationHandler(
     entry_points=[
-        MessageHandler(Filters.regex('^(Старт)$'), handlers.get_info),
+        MessageHandler(Filters.regex('^(Старт)$'), handlers.get_main_menu),
     ],
     states={
         handlers.INFO: [
             MessageHandler(Filters.text & ~Filters.command, handlers.get_info)
         ],
-        handlers.SUBSCRIPTION: [
-            MessageHandler(Filters.text & ~Filters.command, handlers.get_subscription)
+        handlers.MAIN_MENU: [
+            MessageHandler(Filters.text & ~Filters.command, handlers.get_main_menu)
+        ],
+        handlers.PAY: [
+            MessageHandler(Filters.text & ~Filters.command, handlers.get_pay_menu)
         ],
     },
     fallbacks=[
