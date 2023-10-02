@@ -55,10 +55,10 @@ def get_main_menu(update: Update, context):
     if customer_choise == static_text.main_menu_button_text[0]:
 
         print('Recipes')
-        if not user.subscription_to:
+        if user.subscription_to:
             time_user = user.subscription_to.strftime('%Y-%m-%d %H:%M:%S')
         else:
-            time_user = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            time_user = datetime(2023, 1, 1).strftime('%Y-%m-%d %H:%M:%S')
         time_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         if time_user > time_now:
