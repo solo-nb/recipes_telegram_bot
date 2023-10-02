@@ -18,6 +18,9 @@ bot_handlers = ConversationHandler(
         handlers.PAY: [
             MessageHandler(Filters.text & ~Filters.command, handlers.get_pay_menu)
         ],
+        handlers.CATEGORY_MENU: [
+            MessageHandler(Filters.text & ~Filters.command, handlers.get_category_menu)
+        ],
     },
     fallbacks=[
         CommandHandler("cancel", handlers.command_cancel)

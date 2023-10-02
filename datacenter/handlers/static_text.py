@@ -8,7 +8,7 @@ not_text_enter = 'Ручки чешутся? Не понимаю ручной в
 
 # Button text
 start_button_text = ['Старт']
-main_menu_button_text = ['Рецепт дня','Ингредиенты', 'Подписка', 'Контакты']
+main_menu_button_text = ['Рецепт дня','Ингредиенты', 'Категории', 'Подписка']
 main_pay_button_text = ['1 час', '10 минут', '5 минут']
 pay_buttons = ['Оптатить', 'Назад']
 
