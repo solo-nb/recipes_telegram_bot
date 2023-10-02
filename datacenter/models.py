@@ -53,15 +53,22 @@ class Recipes(models.Model):
     ingredients = models.ManyToManyField('Ingredients',
                                          through='Recipes_ingredients')
 
+    def __str__(self):
+        return f'{self.name}'
 
 class Units(models.Model):
     name = models.CharField(max_length=150)
 
+    def __str__(self):
+        return f'{self.name}'
 
 class Ingredients(models.Model):
     name = models.CharField(max_length=150)
     unit = models.ForeignKey(Units, on_delete=models.SET_NULL, null=True)
     price = models.FloatField()
+
+    def __str__(self):
+        return f'{self.name}, {self.price}'
 
 
 class Recipes_ingredients(models.Model):
@@ -69,8 +76,14 @@ class Recipes_ingredients(models.Model):
     ingredients = models.ForeignKey(Ingredients, on_delete=models.CASCADE)
     quantity = models.FloatField()
 
+    def __str__(self):
+        return f'{self.recipes}'
+
 
 class Grades(models.Model):
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
     recipes = models.ForeignKey(Recipes, on_delete=models.CASCADE)
     grade = models.BooleanField()
+
+    def __str__(self):
+        return f'{self.user}'

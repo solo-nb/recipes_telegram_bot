@@ -79,11 +79,21 @@ def get_main_menu(update: Update, context):
             update.message.reply_text(text='Без подписки')
             update.message.reply_text(text=recipe.name)
             update.message.reply_text(text=recipe.discription)
-
-        update.message.reply_text(text='Рецепт дня',reply_markup=make_main_menu_keyboard())
+      
+        context.bot_data['recipe'] = recipe
+        update.message.reply_text(text='Рецепт дня', reply_markup=make_main_menu_keyboard())
         return MAIN_MENU
 
     elif customer_choise == static_text.main_menu_button_text[1]:
+
+        print('Тут ингредиенты')
+        print(context.bot_data['recipe'].types_of_recipes)
+  
+
+        update.message.reply_text(text='Тут ингредиенты',reply_markup=make_main_menu_keyboard())
+        return MAIN_MENU
+
+    elif customer_choise == static_text.main_menu_button_text[2]:
         if user.subscription_to:
             time = user.subscription_to.strftime('%Y-%m-%d %H:%M:%S')
             text = f'Подписка закончится:\n{time}'
@@ -92,7 +102,7 @@ def get_main_menu(update: Update, context):
         update.message.reply_text(text=text, reply_markup=make_pay_menu_keyboard())
         return INFO
 
-    elif customer_choise == static_text.main_menu_button_text[2]:
+    elif customer_choise == static_text.main_menu_button_text[3]:
         update.message.reply_text(text='Тут контакты')
         update.message.reply_text(text='И тут', reply_markup=make_main_menu_keyboard())
         return MAIN_MENU
