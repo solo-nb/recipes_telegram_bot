@@ -4,13 +4,13 @@ from telegram.ext import ConversationHandler, CallbackContext
 from django.utils import timezone
 import random
 from . import static_text
-from datacenter.models import Users, Recipes
-from .keyboard_utils import make_keyboard_for_start_command, make_main_menu_keyboard, make_pay_menu_keyboard, make_pay_menu_keyboard2
+from datacenter.models import Users, Recipes, Types_of_recipes
+from .keyboard_utils import make_keyboard_for_start_command, make_main_menu_keyboard, make_pay_menu_keyboard, make_pay_menu_keyboard2, make_category_menu_keyboard
 from yoomoney import Quickpay
 import webbrowser
 
 
-INFO, MAIN_MENU, PAY = range(3)
+INFO, MAIN_MENU, PAY, CATEGORY_MENU = range(4)
 
 
 def command_start(update: Update, context):
@@ -81,7 +81,7 @@ def get_main_menu(update: Update, context):
             update.message.reply_text(text='Без подписки')
             update.message.reply_text(text=recipe.name)
             update.message.reply_text(text=recipe.discription)
-      
+
         context.bot_data['recipe'] = recipe
         update.message.reply_text(text='Рецепт дня', reply_markup=make_main_menu_keyboard())
         return MAIN_MENU
@@ -89,13 +89,19 @@ def get_main_menu(update: Update, context):
     elif customer_choise == static_text.main_menu_button_text[1]:
 
         print('Тут ингредиенты')
-        print(context.bot_data['recipe'].types_of_recipes)
+        #print(context.bot_data['recipe'].types_of_recipes)
   
-
         update.message.reply_text(text='Тут ингредиенты',reply_markup=make_main_menu_keyboard())
         return MAIN_MENU
 
+
     elif customer_choise == static_text.main_menu_button_text[2]:
+        update.message.reply_text(text='Категория')
+        update.message.reply_text(text='И тут', reply_markup=make_category_menu_keyboard())
+        return CATEGORY_MENU
+
+
+    elif customer_choise == static_text.main_menu_button_text[3]:
         if user.subscription_to:
             time = user.subscription_to.strftime('%Y-%m-%d %H:%M:%S')
             text = f'Подписка закончится:\n{time}'
@@ -103,11 +109,6 @@ def get_main_menu(update: Update, context):
             text = 'У вас нет подписки'
         update.message.reply_text(text=text, reply_markup=make_pay_menu_keyboard())
         return INFO
-
-    elif customer_choise == static_text.main_menu_button_text[3]:
-        update.message.reply_text(text='Тут контакты')
-        update.message.reply_text(text='И тут', reply_markup=make_main_menu_keyboard())
-        return MAIN_MENU
 
     else:
         update.message.reply_text(text=static_text.not_text_enter, reply_markup=make_main_menu_keyboard())
@@ -149,6 +150,17 @@ def get_pay_menu(update: Update, cake_description):
     print(quickpay.base_url)
     webbrowser.open(quickpay.base_url)
 
+    return MAIN_MENU # Вернет меню на случай ручного ввода
+
+
+def get_category_menu(update: Update, _):
+    print('Категории')
+
+    customer_choise = update.message.text
+    print(customer_choise)
+ 
+    text = f'Выборка по категории:\n{customer_choise}'
+    update.message.reply_text(text=text, reply_markup=make_main_menu_keyboard())
     return MAIN_MENU # Вернет меню на случай ручного ввода
 
 
