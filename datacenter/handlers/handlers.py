@@ -6,6 +6,8 @@ import random
 from . import static_text
 from datacenter.models import Users, Recipes
 from .keyboard_utils import make_keyboard_for_start_command, make_main_menu_keyboard, make_pay_menu_keyboard, make_pay_menu_keyboard2
+from yoomoney import Quickpay
+import webbrowser
 
 
 INFO, MAIN_MENU, PAY = range(3)
@@ -121,16 +123,31 @@ def get_pay_menu(update: Update, cake_description):
 
     if customer_choise == static_text.main_pay_button_text[0]:
         user.subscription_to = datetime.now() + timedelta(hours=1)
+        price = 1000
 
     if customer_choise == static_text.main_pay_button_text[1]:
         user.subscription_to = datetime.now() + timedelta(minutes=10)
+        price = 600
 
     if customer_choise == static_text.main_pay_button_text[2]:
         user.subscription_to = datetime.now() + timedelta(minutes=5)
+        price = 150
 
+    quickpay = Quickpay(
+        receiver="410013489645837",
+        quickpay_form="shop",
+        targets="Sponsor this project",
+        paymentType="SB",
+        sum=price,
+        label=user
+        )
+    
     user.save()
     text = f'Подписка до:\n{user.subscription_to}'
     update.message.reply_text(text=text, reply_markup=make_main_menu_keyboard())
+
+    print(quickpay.base_url)
+    webbrowser.open(quickpay.base_url)
 
     return MAIN_MENU # Вернет меню на случай ручного ввода
 
