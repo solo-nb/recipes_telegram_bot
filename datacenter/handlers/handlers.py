@@ -1,12 +1,13 @@
+import datetime
 from telegram import Update
 from telegram.ext import ConversationHandler, CallbackContext
-
+from django.utils import timezone
 from . import static_text
 from datacenter.models import Users, Recipes
 from .keyboard_utils import make_keyboard_for_start_command, make_main_menu_keyboard, make_pay_menu_keyboard, make_pay_menu_keyboard2
 
 
-INFO, MAIN_MENU, PAY, ORDER_CAKE, LAYER, DECOR, TOPPING, BERRIES, CALCULATE, COMPLAINT, COMPLAINT_TEXT = range(11)
+INFO, MAIN_MENU, PAY = range(3)
 
 
 def command_start(update: Update, context):
@@ -40,13 +41,39 @@ def get_info(update: Update, _: CallbackContext):
     return MAIN_MENU
     
 
-def get_main_menu(update: Update, _):
+def get_main_menu(update: Update, context):
     print('get_customer_menu')
     customer_choise = update.message.text
     if customer_choise == static_text.main_menu_button_text[0]:
-        print('get_order')
+
+
+        print('Recipes')
+        user_info = update.message.from_user.to_dict()
+        user = Users.objects.get(telegram_id=user_info['id'])
+
+    
+        # time_user = user.subscription_to - datetime.datetime.now()
+
+        # print(time_user)
+        # if time_user > 0:
+
+        #     recipes = Recipes.objects.filter(is_subscribed=True)
+        #     for recipe in recipes:
+        #         with open ('spacex2.jpg', 'rb') as file:
+        #             update.message.reply_photo(photo=file)
+        #         update.message.reply_text(text='С подпиской')
+        #         print(recipe.name)
+
+        # else:
+        recipes = Recipes.objects.filter(is_subscribed=False)
+        for recipe in recipes:
+            with open (recipe.image, 'rb') as file:
+                update.message.reply_photo(photo=file)
+            update.message.reply_text(text='Без подписки')
+            update.message.reply_text(text=recipe.name)
+            print(recipe.name)
+        
         update.message.reply_text(text='Рецепт дня',reply_markup=make_main_menu_keyboard())
-        recipes = Recipes.objects.all()
         return MAIN_MENU
     elif customer_choise == static_text.main_menu_button_text[1]:
         update.message.reply_text(text='Тут будет подписка', reply_markup=make_pay_menu_keyboard())
@@ -60,9 +87,9 @@ def get_main_menu(update: Update, _):
         return MAIN_MENU # Вернет меню на случай ручного ввода
 
 
-#def get_pay_menu(update: Update, cake_description):
-#    pass 
-#    return MAIN_MENU # Вернет меню на случай ручного ввода
+def get_pay_menu(update: Update, cake_description):
+    pass 
+    return MAIN_MENU # Вернет меню на случай ручного ввода
 
 
 def command_cancel(update: Update, _):

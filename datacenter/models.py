@@ -26,6 +26,7 @@ class Users(UUIDMixin, TimeStampedMixin):
     is_admin = models.BooleanField(
         null=True, blank=True, default=False, verbose_name='Администратор')
     registration = models.DateTimeField(default=timezone.now)
+    subscription_to = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         if self.username:
