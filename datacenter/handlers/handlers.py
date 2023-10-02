@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 from telegram import Update
 from telegram.ext import ConversationHandler, CallbackContext
 from django.utils import timezone
@@ -34,61 +34,87 @@ def command_start(update: Update, context):
 
 
 def get_info(update: Update, _: CallbackContext):
+
     print('info')
-    update.message.reply_text(text='Подписка закончится')
-    update.message.reply_text(text='Подписка', reply_markup=make_pay_menu_keyboard2())
+    customer_choise = update.message.text
+
+    if customer_choise == static_text.pay_buttons[0]:
+        update.message.reply_text(text='Оплата подписки', reply_markup=make_pay_menu_keyboard2())
+        return PAY
 
     return MAIN_MENU
-    
+
 
 def get_main_menu(update: Update, context):
     print('get_customer_menu')
     customer_choise = update.message.text
+    user_info = update.message.from_user.to_dict()
+    user = Users.objects.get(telegram_id=user_info['id'])
+
     if customer_choise == static_text.main_menu_button_text[0]:
 
-
         print('Recipes')
-        user_info = update.message.from_user.to_dict()
-        user = Users.objects.get(telegram_id=user_info['id'])
+        time_user = user.subscription_to.strftime('%Y-%m-%d %H:%M:%S')
+        time_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-    
-        # time_user = user.subscription_to - datetime.datetime.now()
+        if time_user > time_now:
 
-        # print(time_user)
-        # if time_user > 0:
+            recipes = Recipes.objects.filter(is_subscribed=True)
+            for recipe in recipes:
+                with open (recipe.image, 'rb') as file:
+                    update.message.reply_photo(photo=file)
+                update.message.reply_text(text='С подпиской')
+                update.message.reply_text(text=recipe.name)
+                update.message.reply_text(text=recipe.discription)
 
-        #     recipes = Recipes.objects.filter(is_subscribed=True)
-        #     for recipe in recipes:
-        #         with open ('spacex2.jpg', 'rb') as file:
-        #             update.message.reply_photo(photo=file)
-        #         update.message.reply_text(text='С подпиской')
-        #         print(recipe.name)
+        else:
+            recipes = Recipes.objects.filter(is_subscribed=False)
+            for recipe in recipes:
+                with open (recipe.image, 'rb') as file:
+                    update.message.reply_photo(photo=file)
+                update.message.reply_text(text='Без подписки')
+                update.message.reply_text(text=recipe.name)
+                update.message.reply_text(text=recipe.discription)
 
-        # else:
-        recipes = Recipes.objects.filter(is_subscribed=False)
-        for recipe in recipes:
-            with open (recipe.image, 'rb') as file:
-                update.message.reply_photo(photo=file)
-            update.message.reply_text(text='Без подписки')
-            update.message.reply_text(text=recipe.name)
-            print(recipe.name)
-        
         update.message.reply_text(text='Рецепт дня',reply_markup=make_main_menu_keyboard())
         return MAIN_MENU
+
     elif customer_choise == static_text.main_menu_button_text[1]:
-        update.message.reply_text(text='Тут будет подписка', reply_markup=make_pay_menu_keyboard())
+        time = user.subscription_to.strftime('%Y-%m-%d %H:%M:%S')
+        text = f'Подписка закончится:\n{time}'
+        update.message.reply_text(text=text, reply_markup=make_pay_menu_keyboard())
         return INFO
+
     elif customer_choise == static_text.main_menu_button_text[2]:
         update.message.reply_text(text='Тут контакты')
         update.message.reply_text(text='И тут', reply_markup=make_main_menu_keyboard())
         return MAIN_MENU
+
     else:
         update.message.reply_text(text=static_text.not_text_enter, reply_markup=make_main_menu_keyboard())
         return MAIN_MENU # Вернет меню на случай ручного ввода
 
 
 def get_pay_menu(update: Update, cake_description):
-    pass 
+    print('Оплата')
+
+    customer_choise = update.message.text
+    user_info = update.message.from_user.to_dict()
+    user = Users.objects.get(telegram_id=user_info['id'])
+
+    if customer_choise == static_text.main_pay_button_text[0]:
+        user.subscription_to = datetime.now() + timedelta(hours=1)
+
+    if customer_choise == static_text.main_pay_button_text[1]:
+        user.subscription_to = datetime.now() + timedelta(minutes=10)
+
+    if customer_choise == static_text.main_pay_button_text[2]:
+        user.subscription_to = datetime.now() + timedelta(minutes=5)
+
+    user.save()
+    text = f'Подписка до:\n{user.subscription_to}'
+    update.message.reply_text(text=text, reply_markup=make_main_menu_keyboard())
+
     return MAIN_MENU # Вернет меню на случай ручного ввода
 
 
