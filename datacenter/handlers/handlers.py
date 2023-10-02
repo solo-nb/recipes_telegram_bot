@@ -84,8 +84,11 @@ def get_main_menu(update: Update, context):
         return MAIN_MENU
 
     elif customer_choise == static_text.main_menu_button_text[1]:
-        time = user.subscription_to.strftime('%Y-%m-%d %H:%M:%S')
-        text = f'Подписка закончится:\n{time}'
+        if user.subscription_to:
+            time = user.subscription_to.strftime('%Y-%m-%d %H:%M:%S')
+            text = f'Подписка закончится:\n{time}'
+        else:
+            text = 'У вас нет подписки'
         update.message.reply_text(text=text, reply_markup=make_pay_menu_keyboard())
         return INFO
 
