@@ -12,11 +12,3 @@ main_menu_button_text = ['Рецепт дня','Ингредиенты', 'Кат
 main_pay_button_text = ['12 мес', '6 мес', '1 мес']
 pay_buttons = ['Оптатить', 'Назад']
 
-
-
-# Complaint
-complaint = 'Напишите претензию'
-complaint_ok = 'Претензия отправлена'
-
-complaint_button_text = ['Жалоба']
-complaint_button_text_ok = ['Отправить']
