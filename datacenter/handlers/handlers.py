@@ -68,12 +68,10 @@ def get_main_menu(update: Update, context):
         time_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         is_subscribed = time_user > time_now
-        recipes = Recipes.objects.filter(is_subscribed=True)
+        recipes = Recipes.objects.filter(is_subscribed=is_subscribed)
         recipe = random.choice(recipes)
         context.bot_data['recipe'] = recipe
 
-        recipes = Recipes.objects.filter(is_subscribed=is_subscribed)
-        recipe = random.choice(recipes)
 
         price = 0
         for _item in recipe.ingredients.all():
@@ -220,7 +218,7 @@ def get_category_menu(update: Update, context):
     time_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     is_subscribed = time_user > time_now
-    recipes = Recipes.objects.filter(is_subscribed=True, types_of_recipes=types_of_recipes)
+    recipes = Recipes.objects.filter(is_subscribed=is_subscribed, types_of_recipes=types_of_recipes)
 
     if not recipes:
         update.message.reply_text(text='К сожалению нет блюд этого типа для вашего типа подписки', reply_markup=make_main_menu_keyboard())
@@ -228,9 +226,6 @@ def get_category_menu(update: Update, context):
     
     recipe = random.choice(recipes)
     context.bot_data['recipe'] = recipe
-
-    recipes = Recipes.objects.filter(is_subscribed=is_subscribed)
-    recipe = random.choice(recipes)
 
     price = 0
     for _item in recipe.ingredients.all():
