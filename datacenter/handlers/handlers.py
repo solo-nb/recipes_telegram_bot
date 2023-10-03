@@ -133,7 +133,11 @@ def get_main_menu(update: Update, context):
             Grades.objects.create(user=user, recipes=context.bot_data['recipe'], grade=True)
             message_text = 'Спасибо за вашу оценку. Мы стремимся стать лучше'
         else:
-            grade[0].delete()
+            if grade[0].grade == False:
+                grade[0].grade = True
+                grade[0].save()
+            else:    
+                grade[0].delete()
             message_text = 'Оценка изменена'
 
         update.message.reply_text(text=message_text, reply_markup=make_main_menu_keyboard())
@@ -146,7 +150,11 @@ def get_main_menu(update: Update, context):
             Grades.objects.create(user=user, recipes=context.bot_data['recipe'], grade=False)
             message_text = 'Спасибо за вашу оценку. Мы стремимся стать лучше'
         else:
-            grade[0].delete()
+            if grade[0].grade == True:
+                grade[0].grade = False
+                grade[0].save()
+            else:
+                grade[0].delete()
             message_text = 'Оценка изменена'
 
         update.message.reply_text(text=message_text, reply_markup=make_main_menu_keyboard())
