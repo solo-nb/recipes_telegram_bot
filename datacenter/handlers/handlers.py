@@ -117,6 +117,12 @@ def get_main_menu(update: Update, context):
             text = 'У вас нет подписки'
         update.message.reply_text(text=text, reply_markup=make_pay_menu_keyboard())
         return INFO
+    
+    elif customer_choise == static_text.main_menu_button_text[4]: # like
+        update.message.reply_text(text='Спасибо за вашу оценку. Мы стремимся стать лучше', reply_markup=make_pay_menu_keyboard())
+
+    elif customer_choise == static_text.main_menu_button_text[5]: #dislike
+        update.message.reply_text(text='Спасибо за вашу оценку. Мы стремимся стать лучше', reply_markup=make_pay_menu_keyboard())
 
     else:
         update.message.reply_text(text=static_text.not_text_enter, reply_markup=make_main_menu_keyboard())
