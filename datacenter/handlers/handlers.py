@@ -4,7 +4,7 @@ from telegram.ext import ConversationHandler, CallbackContext
 from django.utils import timezone
 import random
 from . import static_text
-from datacenter.models import Users, Recipes, Types_of_recipes, Recipes_ingredients
+from datacenter.models import Users, Recipes, Types_of_recipes, Recipes_ingredients, Grades
 from .keyboard_utils import make_keyboard_for_start_command, make_main_menu_keyboard, make_pay_menu_keyboard, make_pay_menu_keyboard2, make_category_menu_keyboard
 from yoomoney import Quickpay
 import webbrowser
@@ -118,12 +118,32 @@ def get_main_menu(update: Update, context):
         update.message.reply_text(text=text, reply_markup=make_pay_menu_keyboard())
         return INFO
     
-    elif customer_choise == static_text.main_menu_button_text[4]: # like
-        update.message.reply_text(text='Спасибо за вашу оценку. Мы стремимся стать лучше', reply_markup=make_main_menu_keyboard())
+    elif customer_choise == static_text.main_menu_button_text[4]:  # like
+        print(user, context.bot_data['recipe']) 
+        grade = Grades.objects.filter(user=user, recipes=context.bot_data['recipe'])
 
-    elif customer_choise == static_text.main_menu_button_text[5]: #dislike
-        update.message.reply_text(text='Спасибо за вашу оценку. Мы стремимся стать лучше', reply_markup=make_main_menu_keyboard())
+        if len(grade) == 0:
+            Grades.objects.create(user=user, recipes=context.bot_data['recipe'], grade=True)
+            message_text = 'Спасибо за вашу оценку. Мы стремимся стать лучше'
+        else:
+            grade[0].delete()
+            message_text = 'Оценка изменена'
 
+        update.message.reply_text(text=message_text, reply_markup=make_main_menu_keyboard())
+
+    elif customer_choise == static_text.main_menu_button_text[5]:  #dislike
+        print(user, context.bot_data['recipe']) 
+        grade = Grades.objects.filter(user=user, recipes=context.bot_data['recipe'])
+
+        if len(grade) == 0:
+            Grades.objects.create(user=user, recipes=context.bot_data['recipe'], grade=False)
+            message_text = 'Спасибо за вашу оценку. Мы стремимся стать лучше'
+        else:
+            grade[0].delete()
+            message_text = 'Оценка изменена'
+
+        update.message.reply_text(text=message_text, reply_markup=make_main_menu_keyboard())
+    
     else:
         update.message.reply_text(text=static_text.not_text_enter, reply_markup=make_main_menu_keyboard())
         return MAIN_MENU # Вернет меню на случай ручного ввода
