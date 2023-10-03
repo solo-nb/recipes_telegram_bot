@@ -4,7 +4,7 @@ from telegram.ext import ConversationHandler, CallbackContext
 from django.utils import timezone
 import random
 from . import static_text
-from datacenter.models import Users, Recipes, Types_of_recipes
+from datacenter.models import Users, Recipes, Types_of_recipes, Recipes_ingredients
 from .keyboard_utils import make_keyboard_for_start_command, make_main_menu_keyboard, make_pay_menu_keyboard, make_pay_menu_keyboard2, make_category_menu_keyboard
 from yoomoney import Quickpay
 import webbrowser
@@ -88,10 +88,18 @@ def get_main_menu(update: Update, context):
 
     elif customer_choise == static_text.main_menu_button_text[1]:
 
-        print('Тут ингредиенты')
-        #print(context.bot_data['recipe'].types_of_recipes)
-  
-        update.message.reply_text(text='Тут ингредиенты',reply_markup=make_main_menu_keyboard())
+        if not context.bot_data['recipe']:
+            update.message.reply_text(text='Не выбран рецепт дня',reply_markup=make_main_menu_keyboard())
+            return MAIN_MENU
+
+        dish = context.bot_data['recipe']
+        message_text = f'<b>Ингридиенты для {dish.name}:</b>'
+        for _item in dish.ingredients.all():
+            ingridient = Recipes_ingredients.objects.get(recipes=dish, ingredients=_item)
+            message_text = message_text + f'\n  -{_item.name} (<i>{ingridient.quantity} {_item.unit}</i>)'    
+        with open(dish.image, 'rb') as photo:
+            update.message.reply_photo(photo=photo, caption=message_text, reply_markup=make_main_menu_keyboard(), parse_mode="HTML")
+        
         return MAIN_MENU
 
 
