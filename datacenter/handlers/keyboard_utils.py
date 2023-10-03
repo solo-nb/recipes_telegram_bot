@@ -60,6 +60,7 @@ def make_category_menu_keyboard() -> ReplyKeyboardMarkup:
     category_buttons = Types_of_recipes.objects.all()
     for button in category_buttons:
         buttons.append(button.name)
+    buttons.append('Назад')
     buttons = [KeyboardButton(choose) for choose in buttons]
 
     reply_markup = ReplyKeyboardMarkup(

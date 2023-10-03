@@ -80,7 +80,7 @@ def get_main_menu(update: Update, context):
         message_text = f'\n\n<b>🌟🍽️ Блюдо дня: {recipe.name.upper()}</b>\n\n \
 🗒️ Описание: <i>{recipe.discription}</i>\n\n \
 💰 Цена: <i>{price}р</i>\n\n \
-Насладитесь этим изысканным блюдом, которое удовлетворит ваши желания и оставит вас просить еще!\n\n \
+Насладитесь этим изысканным блюдом, которое удовлетворит ваши желания и заставит вас просить еще!\n\n \
 Приятного аппетита! 😋🔥'
 
         with open(recipe.image, 'rb') as file:
@@ -111,8 +111,7 @@ def get_main_menu(update: Update, context):
 
 
     elif customer_choise == static_text.main_menu_button_text[2]:
-        update.message.reply_text(text='Категория')
-        update.message.reply_text(text='И тут', reply_markup=make_category_menu_keyboard())
+        update.message.reply_text(text='Категория', reply_markup=make_category_menu_keyboard())
         return CATEGORY_MENU
 
 
@@ -194,15 +193,63 @@ def get_pay_menu(update: Update, cake_description):
     return MAIN_MENU # Вернет меню на случай ручного ввода
 
 
-def get_category_menu(update: Update, _):
+def get_category_menu(update: Update, context):
     print('Категории')
 
     customer_choise = update.message.text
+    user_info = update.message.from_user.to_dict()
+    user = Users.objects.get(telegram_id=user_info['id'])
+
     print(customer_choise)
- 
-    text = f'Выборка по категории:\n{customer_choise}'
-    update.message.reply_text(text=text, reply_markup=make_main_menu_keyboard())
-    return MAIN_MENU # Вернет меню на случай ручного ввода
+    print(user)
+
+    if customer_choise == 'Назад':
+
+        update.message.reply_text(text='Главное меню', reply_markup=make_main_menu_keyboard())
+        return MAIN_MENU
+    types_of_recipes = Types_of_recipes.objects.get(name=customer_choise)
+
+    if user.subscription_to:
+        time_user = user.subscription_to.strftime('%Y-%m-%d %H:%M:%S')
+    else:    
+        time_user = datetime(2023, 1, 1).strftime('%Y-%m-%d %H:%M:%S')
+
+    time_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    is_subscribed = time_user > time_now
+    recipes = Recipes.objects.filter(is_subscribed=True, types_of_recipes=types_of_recipes)
+
+    if not recipes:
+        update.message.reply_text(text='К сожалению нет блюд этого типа для вашего типа подписки', reply_markup=make_main_menu_keyboard())
+        return MAIN_MENU    
+    
+    recipe = random.choice(recipes)
+    context.bot_data['recipe'] = recipe
+
+    recipes = Recipes.objects.filter(is_subscribed=is_subscribed)
+    recipe = random.choice(recipes)
+
+    price = 0
+    for _item in recipe.ingredients.all():
+        ingridient = Recipes_ingredients.objects.get(recipes=recipe, ingredients=_item)
+        price = price + (_item.price * ingridient.quantity)
+
+    message_text = f'\n\n<b>🍽️{recipe.name.upper()}</b>\n\n \
+🌱 Тип: <i>{customer_choise}</i>\n\n \
+🗒️ Описание: <i>{recipe.discription}</i>\n\n \
+💰 Цена: <i>{price}р</i>\n\n \
+Насладитесь этим изысканным блюдом, которое удовлетворит ваши желания и заставит вас просить еще!\n\n \
+Приятного аппетита! 😋🔥'
+
+    with open(recipe.image, 'rb') as file:
+        update.message.reply_photo(
+            photo=file,
+            caption=message_text,
+            reply_markup=make_main_menu_keyboard(),
+            parse_mode='HTML'
+        )
+    
+    return MAIN_MENU  # Вернет меню на случай ручного ввода
 
 
 def command_cancel(update: Update, _):
