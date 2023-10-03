@@ -44,6 +44,9 @@ def get_info(update: Update, _: CallbackContext):
     if customer_choise == static_text.pay_buttons[0]:
         update.message.reply_text(text='Оплата подписки', reply_markup=make_pay_menu_keyboard2())
         return PAY
+    if customer_choise == static_text.pay_buttons[1]:
+        update.message.reply_text(text='Вернутся в главное меню', reply_markup=make_main_menu_keyboard())
+        return MAIN_MENU
 
     return MAIN_MENU
 
