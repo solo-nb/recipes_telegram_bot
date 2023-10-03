@@ -61,29 +61,36 @@ def get_main_menu(update: Update, context):
             time_user = user.subscription_to.strftime('%Y-%m-%d %H:%M:%S')
         else:
             time_user = datetime(2023, 1, 1).strftime('%Y-%m-%d %H:%M:%S')
+
         time_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        if time_user > time_now:
-
-            recipes = Recipes.objects.filter(is_subscribed=True)
-            recipe = random.choice(recipes)
-            with open (recipe.image, 'rb') as file:
-                update.message.reply_photo(photo=file)
-            update.message.reply_text(text='С подпиской')
-            update.message.reply_text(text=recipe.name)
-            update.message.reply_text(text=recipe.discription)
-
-        else:
-            recipes = Recipes.objects.filter(is_subscribed=False)
-            recipe = random.choice(recipes)
-            with open (recipe.image, 'rb') as file:
-                update.message.reply_photo(photo=file)
-            update.message.reply_text(text='Без подписки')
-            update.message.reply_text(text=recipe.name)
-            update.message.reply_text(text=recipe.discription)
-
+        is_subscribed = time_user > time_now
+        recipes = Recipes.objects.filter(is_subscribed=True)
+        recipe = random.choice(recipes)
         context.bot_data['recipe'] = recipe
-        update.message.reply_text(text='Рецепт дня', reply_markup=make_main_menu_keyboard())
+
+        recipes = Recipes.objects.filter(is_subscribed=is_subscribed)
+        recipe = random.choice(recipes)
+
+        price = 0
+        for _item in recipe.ingredients.all():
+            ingridient = Recipes_ingredients.objects.get(recipes=recipe, ingredients=_item)
+            price = price + (_item.price * ingridient.quantity)
+
+        message_text = f'\n\n<b>🌟🍽️ Блюдо дня: {recipe.name.upper()}</b>\n\n \
+🗒️ Описание: <i>{recipe.discription}</i>\n\n \
+💰 Цена: <i>{price}р</i>\n\n \
+Насладитесь этим изысканным блюдом, которое удовлетворит ваши желания и оставит вас просить еще!\n\n \
+Приятного аппетита! 😋🔥'
+
+        with open(recipe.image, 'rb') as file:
+            update.message.reply_photo(
+                photo=file,
+                caption=message_text,
+                reply_markup=make_main_menu_keyboard(),
+                parse_mode='HTML'
+            )
+
         return MAIN_MENU
 
     elif customer_choise == static_text.main_menu_button_text[1]:
